@@ -1,7 +1,6 @@
 package post
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -25,20 +24,26 @@ func Route(route *echo.Group) {
 
 	route.GET("/posts/:id", func(ctx echo.Context) error {
 		id := ctx.Param("id")
-		post := findPost(id)
+		post, _, _ := findPost(id)
 		return ctx.JSON(http.StatusOK, post)
 	})
 
-	route.PATCH("/posts/:id", func(ctx echo.Context) error {
+	route.PATCH("/posts/:id", func(ctx echo.Context) (err error) {
 		id := ctx.Param("id")
 		bodyPost := new(Post)
-		fmt.Println("bodyPost", bodyPost)
+		if err = ctx.Bind(bodyPost); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
 		updatePost := updatePost(id, *bodyPost)
 		return ctx.JSON(http.StatusOK, updatePost)
 	})
 
 	route.DELETE("/posts/:id", func(ctx echo.Context) error {
-
-		return ctx.String(http.StatusOK, "delete user")
+		id := ctx.Param("id")
+		message, err := deletePost(id)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+		return ctx.String(http.StatusOK, message)
 	})
 }

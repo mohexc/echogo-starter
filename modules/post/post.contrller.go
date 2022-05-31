@@ -21,32 +21,29 @@ func findPosts() []Post {
 	return posts
 }
 
-func findPost(id string) Post {
+func findPost(id string) (Post, int, error) {
 	var post Post
+	var idx int
+	fmt.Println("findPost", idx)
 	for i := range posts {
 		if posts[i].ID == id {
 			post = posts[i]
+			idx = i
 		}
 	}
-	return post
+	fmt.Println("findPost", idx)
+	return post, idx, nil
 }
 
 func updatePost(id string, updatePost Post) Post {
-	post := findPost(id)
+	post, idx, _ := findPost(id)
 	post.Content = updatePost.Content
-	fmt.Println("newContent", updatePost.Content)
-	var idx int
-
-	for i := range posts {
-		if posts[i].ID == id {
-			idx = i
-			fmt.Println(posts[i])
-		}
-	}
 	posts[idx] = post
 	return post
 }
 
-// func deleteUser() {
-
-// }
+func deletePost(id string) (string, error) {
+	_, idx, _ := findPost(id)
+	posts = append(posts[:idx], posts[idx+1:]...)
+	return "delete sucess", nil
+}
